@@ -105,6 +105,12 @@ export default class CodePushReleaseReactCommand extends CodePushReleaseCommandB
   @hasArg
   public extraHermesFlags: string | string[];
 
+  @help("Path to the node_modules directory.")
+  @longName("node-modules-path")
+  @defaultValue("node_modules")
+  @hasArg
+  public nodeModulesPath: string;
+
   private os: string;
 
   private platform: string;
@@ -205,13 +211,20 @@ export default class CodePushReleaseReactCommand extends CodePushReleaseCommandB
         this.updateContentsPath,
         this.os,
         this.sourcemapOutput,
-        this.extraBundlerOptions
+        this.extraBundlerOptions,
+        this.nodeModulesPath
       );
       // Check if we have to run hermes to compile JS to Byte Code if Hermes is enabled in build.gradle and we're releasing an Android build
       if (this.os === "android") {
         const isHermesEnabled = await getHermesEnabled(this.gradleFile);
         if (isHermesEnabled) {
-          await runHermesEmitBinaryCommand(this.bundleName, this.updateContentsPath, this.sourcemapOutput, this.extraHermesFlags);
+          await runHermesEmitBinaryCommand(
+            this.bundleName,
+            this.updateContentsPath,
+            this.sourcemapOutput,
+            this.extraHermesFlags,
+            this.nodeModulesPath
+          );
         }
       }
       out.text(chalk.cyan("\nReleasing update contents to CodePush:\n"));

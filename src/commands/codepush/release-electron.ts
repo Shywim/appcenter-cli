@@ -70,6 +70,12 @@ export default class CodePushReleaseElectronCommand extends CodePushReleaseComma
   @hasArg
   public extraBundlerOptions: string | string[];
 
+  @help("Path to the node_modules directory.")
+  @longName("node-modules-path")
+  @defaultValue("node_modules")
+  @hasArg
+  public nodeModulesPath: string;
+
   private os: string;
 
   private mode: string;
@@ -165,7 +171,8 @@ export default class CodePushReleaseElectronCommand extends CodePushReleaseComma
         this.entryFile,
         this.updateContentsPath,
         this.sourcemapOutput,
-        this.extraBundlerOptions
+        this.extraBundlerOptions,
+        this.nodeModulesPath
       );
 
       out.text(chalk.cyan("\nReleasing update contents to CodePush:\n"));

@@ -32,7 +32,8 @@ export function runWebPackBundleCommand(
   entryFile: string,
   outputFolder: string,
   sourcemapFileName: string,
-  extraBundlerOptions: string[]
+  extraBundlerOptions: string[],
+  nodeModulesPath: string
 ): Promise<void> {
   const webpackArgs: string[] = [];
   const envNodeArgs: string = process.env.CODE_PUSH_NODE_ARGS;
@@ -42,7 +43,7 @@ export function runWebPackBundleCommand(
   }
 
   Array.prototype.push.apply(webpackArgs, [
-    path.join("node_modules", "webpack-cli", "bin", "cli.js"),
+    path.join(nodeModulesPath, "webpack-cli", "bin", "cli.js"),
     "--output-filename",
     bundleName,
     "--output-path",

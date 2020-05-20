@@ -282,7 +282,8 @@ export function runReactNativeBundleCommand(
   outputFolder: string,
   platform: string,
   sourcemapOutput: string,
-  extraBundlerOptions: string[]
+  extraBundlerOptions: string[],
+  nodeModulesPath: string
 ): Promise<void> {
   const reactNativeBundleArgs: string[] = [];
   const envNodeArgs: string = process.env.CODE_PUSH_NODE_ARGS;
@@ -292,7 +293,7 @@ export function runReactNativeBundleCommand(
   }
 
   Array.prototype.push.apply(reactNativeBundleArgs, [
-    getCliPath(),
+    getCliPath(nodeModulesPath),
     "bundle",
     "--assets-dest",
     outputFolder,
@@ -338,7 +339,8 @@ export function runHermesEmitBinaryCommand(
   bundleName: string,
   outputFolder: string,
   sourcemapOutput: string,
-  extraHermesFlags: string[]
+  extraHermesFlags: string[],
+  nodeModulesPath: string
 ): Promise<void> {
   const hermesArgs: string[] = [];
   const envNodeArgs: string = process.env.CODE_PUSH_NODE_ARGS;
@@ -364,7 +366,7 @@ export function runHermesEmitBinaryCommand(
   }
 
   out.text(chalk.cyan("Converting JS bundle to byte code via Hermes, running command:\n"));
-  const hermesCommand = getHermesCommand();
+  const hermesCommand = getHermesCommand(nodeModulesPath);
   const hermesProcess = spawn(hermesCommand, hermesArgs);
   out.text(`${hermesCommand} ${hermesArgs.join(" ")}`);
 
@@ -447,7 +449,7 @@ function getHermesOSExe(): string {
   }
 }
 
-function getHermesCommand(): string {
+function getHermesCommand(nodeModulesPath: string): string {
   const fileExists = (file: string): boolean => {
     try {
       return fs.statSync(file).isFile();
@@ -456,19 +458,19 @@ function getHermesCommand(): string {
     }
   };
   // assume if hermes-engine exists it should be used instead of hermesvm
-  const hermesEngine = path.join("node_modules", "hermes-engine", getHermesOSBin(), getHermesOSExe());
+  const hermesEngine = path.join(nodeModulesPath, "hermes-engine", getHermesOSBin(), getHermesOSExe());
   if (fileExists(hermesEngine)) {
     return hermesEngine;
   }
-  return path.join("node_modules", "hermesvm", getHermesOSBin(), "hermes");
+  return path.join(nodeModulesPath, "hermesvm", getHermesOSBin(), "hermes");
 }
 
-function getCliPath(): string {
+function getCliPath(nodeModulesPath: string): string {
   if (process.platform === "win32") {
-    return path.join("node_modules", "react-native", "local-cli", "cli.js");
+    return path.join(nodeModulesPath, "react-native", "local-cli", "cli.js");
   }
 
-  return path.join("node_modules", ".bin", "react-native");
+  return path.join(nodeModulesPath, ".bin", "react-native");
 }
 
 export function isValidOS(os: string): boolean {
